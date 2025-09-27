@@ -1,7 +1,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-
+#include <vector>
+#include <cstdint>
+#include <cstring>
 
 class MsgPack
 {
