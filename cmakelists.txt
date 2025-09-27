@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.0)
+project(msgpack_testing)
+
+
+include_directories(include)
+
+#find_package(Boost REQUIRED)  TODO add functionality for boost/json
+
+add_executable(msgpack_testing src/test.cpp)
+
+#target_link_libraries(msgpack_testing Boost::headers) TODO add functionality for boost/json
