@@ -16,13 +16,14 @@ public:
     * as msgpack does not have the key:value structure of JSON, except for maps.
     *
     * @param b64_str string containing base64 encoded MessagePack data
+    * @param force_json_keys if true, forces all map keys to be strings (adds quotes), otherwise leaves as-is
     * @return std::string JSON representation of the MessagePack data
     */
-    static std::string MsgPackToJsonLike(const std::string& b64_str) 
+    static std::string MsgPackToJsonLike(const std::string& b64_str, bool force_json_keys = false) 
     {
         std::vector<uint8_t> decoded_msgpack = base64_decode(b64_str);
         size_t offset = 0;
-        std::string json_result = parse_msgpack_var(decoded_msgpack, offset);
+        std::string json_result = parse_msgpack_var(decoded_msgpack, offset, force_json_keys);
         return json_result;
     }
 
@@ -137,7 +138,7 @@ private:
     */
 
     // Recursive function to parse MessagePack data starting from a given offset
-    static std::string parse_msgpack_var(const std::vector<uint8_t>& data, size_t& offset) {
+    static std::string parse_msgpack_var(const std::vector<uint8_t>& data, size_t& offset, bool force_json_keys = false) {
 
         // check validity of given data
         if (offset >= data.size()) {
@@ -175,9 +176,9 @@ private:
             for (size_t i = 0; i < map_size; ++i) {
                 if (i > 0) result += ", ";
 
-                result += parse_msgpack_var(data, offset);
+                result += parse_msgpack_var(data, offset, force_json_keys);
                 result += ": ";
-                result += parse_msgpack_var(data, offset);
+                result += parse_msgpack_var(data, offset, force_json_keys);
                 
             }
             result += "}";
@@ -196,7 +197,7 @@ private:
             //std::cout << "Fixarray, size: " << array_size << std::endl;
             for (size_t i = 0; i < array_size; ++i) {
                 if (i > 0) result += ", ";
-                result += parse_msgpack_var(data, offset);
+                result += parse_msgpack_var(data, offset, force_json_keys);
             }
             result += "]";
             //std::cout << "Array ended"<< std::endl;
@@ -510,7 +511,7 @@ private:
             std::string result = "[";
             for (size_t i = 0; i < array_size; ++i) {
                 if (i > 0) result += ", ";
-                result += parse_msgpack_var(data, offset);
+                result += parse_msgpack_var(data, offset, force_json_keys);
             }
             result += "]";
             //std::cout << "Array ended"<< std::endl;
@@ -528,7 +529,7 @@ private:
             std::string result = "[";
             for (size_t i = 0; i < array_size; ++i) {
                 if (i > 0) result += ", ";
-                result += parse_msgpack_var(data, offset);
+                result += parse_msgpack_var(data, offset, force_json_keys);
             }
             result += "]";
             //std::cout << "Array ended"<< std::endl;
@@ -547,9 +548,17 @@ private:
             std::string result = "{";
             for (size_t i = 0; i < map_size; ++i) {
                 if (i > 0) result += ", ";
-                result += parse_msgpack_var(data, offset);
+                
+                std::string key = parse_msgpack_var(data, offset, force_json_keys);
+                // if key value does not have quotes, add them if force_json_keys is true
+                if (force_json_keys && key.front() != '\"') 
+                {
+                    key = "\"" + key + "\""; 
+                }
+
+                result += key;
                 result += ": ";
-                result += parse_msgpack_var(data, offset);
+                result += parse_msgpack_var(data, offset, force_json_keys);
             }
             result += "}";
             //std::cout << "Map ended"<< std::endl;
@@ -568,9 +577,17 @@ private:
             std::string result = "{";
             for (size_t i = 0; i < map_size; ++i) {
                 if (i > 0) result += ", ";
-                result += parse_msgpack_var(data, offset);
+                
+                std::string key = parse_msgpack_var(data, offset, force_json_keys);
+                // if key value does not have quotes, add them if force_json_keys is true
+                if (force_json_keys && key.front() != '\"') 
+                {
+                    key = "\"" + key + "\""; 
+                }
+
+                result += key;
                 result += ": ";
-                result += parse_msgpack_var(data, offset);
+                result += parse_msgpack_var(data, offset, force_json_keys);
             }
             result += "}";
             //std::cout << "Map ended"<< std::endl;
