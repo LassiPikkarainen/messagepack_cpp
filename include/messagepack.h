@@ -5,6 +5,9 @@
 #include <cstdint>
 #include <cstring>
 
+#ifndef MESSAGEPACK_H
+#define MESSAGEPACK_H
+
 class MsgPack
 {
 public:
@@ -1026,3 +1029,5 @@ private:
     
 
 };
+
+#endif
